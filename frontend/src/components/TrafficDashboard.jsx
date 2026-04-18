@@ -9,6 +9,7 @@ import './TrafficDashboard.css'
 const TrafficDashboard = () => {
   const [trafficData, setTrafficData] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [fetchingData, setFetchingData] = useState(false)
   const resultsRef = useRef(null)
 
   useScrollAnimation([trafficData, loading])
@@ -41,6 +42,26 @@ const TrafficDashboard = () => {
     }
   }
 
+  const handleFetchData = async () => {
+    setFetchingData(true)
+    try {
+      const response = await fetch('http://localhost:8000/admin/fetch-data', {
+        method: 'POST',
+      })
+      const data = await response.json()
+      if (data.status === 'success') {
+        alert(`✅ Data fetched successfully for ${data.locations} locations!`)
+      } else {
+        alert(`❌ Error: ${data.message}`)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      alert('Failed to fetch data. Make sure the backend is running.')
+    } finally {
+      setFetchingData(false)
+    }
+  }
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
@@ -53,9 +74,18 @@ const TrafficDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="header-badge">
-          <span>🎯</span>
-          <span>Autodetect</span>
+        <div className="header-actions">
+          <div className="header-badge">
+            <span>🎯</span>
+            <span>Autodetect</span>
+          </div>
+          <button 
+            className="fetch-data-btn"
+            onClick={handleFetchData}
+            disabled={fetchingData}
+          >
+            {fetchingData ? '⏳ Fetching...' : '🔄 Fetch Live Data'}
+          </button>
         </div>
       </header>
 

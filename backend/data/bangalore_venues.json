@@ -1,0 +1,138 @@
+{
+  "venues": [
+    {
+      "name": "M. Chinnaswamy Stadium",
+      "lat": 12.9789,
+      "lon": 77.5996,
+      "type": "sports",
+      "capacity": 40000,
+      "impact_radius_km": 3.0,
+      "description": "Cricket stadium - IPL matches cause major traffic"
+    },
+    {
+      "name": "Bangalore Palace",
+      "lat": 12.9980,
+      "lon": 77.5920,
+      "type": "events",
+      "capacity": 10000,
+      "impact_radius_km": 2.0,
+      "description": "Major event venue for concerts and festivals"
+    },
+    {
+      "name": "UB City Mall",
+      "lat": 12.9716,
+      "lon": 77.5946,
+      "type": "shopping",
+      "capacity": 5000,
+      "impact_radius_km": 1.5,
+      "description": "Premium mall on MG Road"
+    },
+    {
+      "name": "Phoenix Marketcity",
+      "lat": 12.9952,
+      "lon": 77.6969,
+      "type": "shopping",
+      "capacity": 8000,
+      "impact_radius_km": 2.0,
+      "description": "Large mall in Whitefield"
+    },
+    {
+      "name": "Orion Mall",
+      "lat": 13.0102,
+      "lon": 77.5525,
+      "type": "shopping",
+      "capacity": 6000,
+      "impact_radius_km": 1.5,
+      "description": "Popular mall near Yeshwanthpur"
+    },
+    {
+      "name": "Manyata Tech Park",
+      "lat": 13.0358,
+      "lon": 77.6208,
+      "type": "office",
+      "capacity": 50000,
+      "impact_radius_km": 2.5,
+      "description": "Major IT park - rush hour traffic"
+    },
+    {
+      "name": "Electronic City",
+      "lat": 12.8456,
+      "lon": 77.6603,
+      "type": "office",
+      "capacity": 100000,
+      "impact_radius_km": 3.0,
+      "description": "Largest IT hub - heavy rush hour traffic"
+    },
+    {
+      "name": "Whitefield",
+      "lat": 12.9698,
+      "lon": 77.7499,
+      "type": "office",
+      "capacity": 80000,
+      "impact_radius_km": 3.0,
+      "description": "Major IT corridor"
+    },
+    {
+      "name": "MG Road",
+      "lat": 12.9716,
+      "lon": 77.6040,
+      "type": "commercial",
+      "capacity": 10000,
+      "impact_radius_km": 2.0,
+      "description": "Main commercial street - always busy"
+    },
+    {
+      "name": "Brigade Road",
+      "lat": 12.9719,
+      "lon": 77.6072,
+      "type": "commercial",
+      "capacity": 8000,
+      "impact_radius_km": 1.5,
+      "description": "Shopping and entertainment district"
+    },
+    {
+      "name": "Kempegowda International Airport",
+      "lat": 13.1986,
+      "lon": 77.7066,
+      "type": "transport",
+      "capacity": 50000,
+      "impact_radius_km": 5.0,
+      "description": "Airport - high traffic during peak hours"
+    },
+    {
+      "name": "Bangalore City Railway Station",
+      "lat": 12.9767,
+      "lon": 77.5713,
+      "type": "transport",
+      "capacity": 30000,
+      "impact_radius_km": 2.0,
+      "description": "Main railway station"
+    }
+  ],
+  "event_types": {
+    "cricket_match": {
+      "typical_duration_hours": 4,
+      "traffic_multiplier": 3.0,
+      "peak_before_minutes": 60,
+      "peak_after_minutes": 30
+    },
+    "concert": {
+      "typical_duration_hours": 3,
+      "traffic_multiplier": 2.5,
+      "peak_before_minutes": 45,
+      "peak_after_minutes": 45
+    },
+    "festival": {
+      "typical_duration_hours": 8,
+      "traffic_multiplier": 2.0,
+      "peak_before_minutes": 120,
+      "peak_after_minutes": 120
+    },
+    "rush_hour": {
+      "typical_duration_hours": 2,
+      "traffic_multiplier": 2.5,
+      "peak_before_minutes": 0,
+      "peak_after_minutes": 0
+    }
+  }
+}

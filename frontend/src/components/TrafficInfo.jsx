@@ -1,6 +1,11 @@
+import { useState } from 'react'
+import FeedbackModal from './FeedbackModal'
 import './TrafficInfo.css'
 
 const TrafficInfo = ({ data }) => {
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false)
+
   const getTrafficColor = (level) => {
     if (level < 40) return '#34a853'  // Google Green
     if (level < 70) return '#fbbc04'  // Google Yellow
@@ -17,6 +22,17 @@ const TrafficInfo = ({ data }) => {
     if (level < 40) return 'badge-green'
     if (level < 70) return 'badge-yellow'
     return 'badge-red'
+  }
+
+  const handleFeedbackSubmit = (result) => {
+    setShowFeedback(false)
+    setFeedbackSubmitted(true)
+    
+    if (result.model_updated) {
+      alert('🎉 Thank you! Your feedback helped improve our model!')
+    } else {
+      alert('✅ Thank you for your feedback!')
+    }
   }
 
   return (
@@ -49,6 +65,14 @@ const TrafficInfo = ({ data }) => {
           </div>
 
           <div className="status-item">
+            <span className="status-icon">⏱️</span>
+            <div className="status-content">
+              <span className="status-label">Expected Delay</span>
+              <span className="status-text delay-highlight">{data.predicted_delay.toFixed(1)} minutes</span>
+            </div>
+          </div>
+
+          <div className="status-item">
             <span className="status-icon">🎯</span>
             <div className="status-content">
               <span className="status-label">Confidence</span>
@@ -66,6 +90,31 @@ const TrafficInfo = ({ data }) => {
           </div>
         </div>
       </div>
+
+      <div className="feedback-section">
+        {!feedbackSubmitted ? (
+          <button 
+            className="feedback-btn glass-button"
+            onClick={() => setShowFeedback(true)}
+          >
+            <span>📊</span>
+            <span>Rate This Prediction</span>
+          </button>
+        ) : (
+          <div className="feedback-thanks glass-badge badge-green">
+            ✅ Thank you for your feedback!
+          </div>
+        )}
+      </div>
+
+      {showFeedback && data.prediction_id && (
+        <FeedbackModal
+          predictionId={data.prediction_id}
+          predictedDelay={data.predicted_delay}
+          onClose={() => setShowFeedback(false)}
+          onSubmit={handleFeedbackSubmit}
+        />
+      )}
     </div>
   )
 }

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: smartroute-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://smartroute_user:smartroute_pass@postgres:5432/smartroute
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - TOMTOM_API_KEY=${TOMTOM_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - API_KEY_SALT=${API_KEY_SALT}
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: postgis/postgis:14-3.3
+    container_name: smartroute-postgres
+    environment:
+      POSTGRES_USER: smartroute_user
+      POSTGRES_PASSWORD: smartroute_pass
+      POSTGRES_DB: smartroute
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: smartroute-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
