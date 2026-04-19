@@ -12,6 +12,7 @@ from api.traffic import router as traffic_router
 from api.predict import router as predict_router
 from api.route import router as route_router
 from api.feedback import router as feedback_router
+from api.routes import router as routes_router
 
 logging.basicConfig(level=settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
@@ -58,6 +59,7 @@ app.include_router(traffic_router)
 app.include_router(predict_router)
 app.include_router(route_router)
 app.include_router(feedback_router)
+app.include_router(routes_router)
 
 @app.get("/")
 def read_root():

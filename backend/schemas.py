@@ -79,3 +79,23 @@ class RouteResponse(BaseModel):
     optimal_route: Dict[str, Any]
     estimated_time: float
     distance: float
+
+class RouteFindRequest(BaseModel):
+    start_lat: float = Field(..., ge=-90, le=90)
+    start_lon: float = Field(..., ge=-180, le=180)
+    end_lat: float = Field(..., ge=-90, le=90)
+    end_lon: float = Field(..., ge=-180, le=180)
+
+class RouteInfo(BaseModel):
+    coordinates: List[List[float]]
+    distance: float
+    estimated_time: float
+    route_type: str
+    traffic_level: int
+    predicted_delay: float
+    traffic_cause: str
+    recommendation: str
+
+class RouteFindResponse(BaseModel):
+    routes: List[RouteInfo]
+    total_routes: int

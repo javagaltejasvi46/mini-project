@@ -10,10 +10,12 @@ A real-time traffic prediction and route optimization system powered by Machine 
 
 ## ✨ Features
 
-- 🎯 **Real-time Traffic Prediction** - ML-powered traffic forecasting
+- 🗺️ **Interactive Map Interface** - Click to select start/end points on live map
+- 🛣️ **Multiple Route Options** - Find and compare 2-3 alternative routes
+- 🎯 **GNN Traffic Prediction** - Graph Neural Network predicts traffic on each route
+- 🚦 **Smart Route Recommendation** - Suggests best route with least traffic
 - 🧠 **Reinforcement Learning** - Learns from user feedback
 - 📊 **Traffic Analytics** - Historical trends and patterns
-- 🗺️ **Route Optimization** - A* algorithm with traffic awareness
 - 🌦️ **Weather Integration** - Weather impact on traffic
 - 📍 **Event Detection** - Identifies nearby events affecting traffic
 - 💬 **User Feedback System** - Rate predictions and help improve the model
@@ -34,6 +36,7 @@ A real-time traffic prediction and route optimization system powered by Machine 
 **Frontend:**
 - React 18
 - Vite (Build tool)
+- Leaflet & React-Leaflet (Interactive maps)
 - Modern CSS with animations
 
 **APIs:**
@@ -171,20 +174,65 @@ Frontend will run on http://localhost:5173
 
 ## 📖 Usage
 
-### Basic Workflow
+### Interactive Map Workflow
 
 1. **Open the app** at http://localhost:5173
-2. **Fetch live data** by clicking "🔄 Fetch Live Data" button
-3. **Enter location** coordinates and name
-4. **Click "Analyze Traffic"** to get prediction
-5. **View results** including:
-   - Current traffic level
-   - Expected delay
-   - Traffic cause
-   - Historical trends
-6. **Rate the prediction** to help improve the model
+2. **Fetch live data** by clicking "🔄 Fetch Live Data" button (optional, for better predictions)
+3. **Select start point** - Click "📍 Set Start Point" then click on the map
+4. **Select end point** - Click "🎯 Set End Point" then click on the map
+5. **Find routes** - Click "🗺️ Find Routes" to discover multiple route options
+6. **View route comparison**:
+   - Distance and estimated time for each route
+   - Traffic level prediction (color-coded)
+   - Expected delay due to traffic
+   - Recommended best route (⭐ badge)
+7. **Select a route** - Click on any route card or polyline to highlight it
+8. **Rate the prediction** to help improve the model (after using the route)
+
+### Route Features
+
+- **Multiple Routes**: System finds 2-3 alternative routes between your points
+- **Traffic Prediction**: GNN model predicts traffic level (10-90%) for each route
+- **Color Coding**: 
+  - 🟢 Green: Light traffic (<30%)
+  - 🟠 Orange: Moderate traffic (30-60%)
+  - 🔴 Red: Heavy traffic (>60%)
+- **Smart Recommendation**: Routes sorted by total time (travel + delay)
+- **Interactive Map**: Click routes to select, zoom/pan to explore
+
+### Legacy Coordinate Input (Still Available)
+
+1. **Enter location** coordinates and name manually
+2. **Click "Analyze Traffic"** to get prediction
+3. **View results** including traffic level, delay, cause, trends
 
 ### API Endpoints
+
+**Find Routes (NEW):**
+```bash
+POST /routes/find
+{
+  "start_lat": 12.9716,
+  "start_lon": 77.5946,
+  "end_lat": 12.9352,
+  "end_lon": 77.6245
+}
+
+Response:
+{
+  "routes": [
+    {
+      "coordinates": [[lat, lon], ...],
+      "distance": 5.2,
+      "estimated_time": 15.5,
+      "route_type": "shortest",
+      "traffic_level": 45,
+      "predicted_delay": 3.5
+    }
+  ],
+  "total_routes": 3
+}
+```
 
 **Prediction:**
 ```bash
@@ -234,9 +282,12 @@ Visit http://localhost:8000/docs for interactive API documentation
    - Predicts expected delay in minutes
    - Current MAE: 31.9 minutes (improves with more data)
 
-3. **GNN Spatial Predictor**
+3. **GNN Spatial Predictor (NEW)**
    - Graph Neural Network for spatial traffic patterns
-   - Uses road network topology
+   - Uses road network topology from OpenStreetMap
+   - Predicts traffic on alternative routes
+   - Considers route characteristics (distance, road types)
+   - Currently uses heuristics (will use trained GNN in production)
 
 ### Training
 
@@ -320,7 +371,8 @@ smartroute-ai/
 │   ├── api/              # API endpoints
 │   │   ├── predict.py    # Prediction endpoint
 │   │   ├── traffic.py    # Traffic data endpoint
-│   │   ├── route.py      # Route optimization
+│   │   ├── route.py      # Route optimization (legacy)
+│   │   ├── routes.py     # Multi-route finding (NEW)
 │   │   └── feedback.py   # User feedback
 │   ├── ml/               # Machine learning
 │   │   ├── train_tabnet.py
@@ -328,6 +380,10 @@ smartroute-ai/
 │   │   ├── orchestrator.py
 │   │   └── reinforcement_learning.py
 │   ├── clients/          # External API clients
+│   │   ├── osmnx_client.py  # OpenStreetMap road networks
+│   │   ├── tomtom.py     # TomTom traffic
+│   │   ├── openweather.py
+│   │   └── google_places.py
 │   ├── models/           # Trained models (generated)
 │   ├── config.py         # Configuration
 │   ├── database.py       # Database connection
@@ -339,11 +395,16 @@ smartroute-ai/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/   # React components
+│   │   │   ├── RouteMap.jsx       # Interactive map (NEW)
+│   │   │   ├── TrafficDashboard.jsx
+│   │   │   ├── TrafficInfo.jsx
+│   │   │   └── FeedbackModal.jsx
 │   │   ├── App.jsx       # Main app
 │   │   └── main.jsx      # Entry point
 │   ├── package.json      # Node dependencies
 │   └── vite.config.js    # Vite configuration
 ├── training_data.csv     # Generated training data
+├── test_routes.py        # Route API test script (NEW)
 ├── README.md             # This file
 └── docker-compose.yml    # Docker setup (optional)
 ```
@@ -370,6 +431,23 @@ curl -X POST "http://localhost:8000/predict" \
     "longitude": 77.5946,
     "location_name": "MG Road"
   }'
+```
+
+### Test Route Finding (NEW)
+
+```bash
+# Using curl
+curl -X POST "http://localhost:8000/routes/find" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "start_lat": 12.9716,
+    "start_lon": 77.5946,
+    "end_lat": 12.9352,
+    "end_lon": 77.6245
+  }'
+
+# Or use the test script
+python test_routes.py
 ```
 
 ### Test Data Collection
@@ -454,6 +532,21 @@ With user feedback (100+ samples):
 - Click "Fetch Live Data" to collect data
 - Check API keys are valid
 
+### Routes not showing on map
+
+- Ensure backend is running on port 8000
+- Check browser console for errors
+- Verify start and end points are in Bangalore area
+- Try points that are 2-10 km apart
+- Check that osmnx can fetch road network for the area
+
+### Map not loading
+
+- Check internet connection (map tiles from OpenStreetMap)
+- Verify leaflet packages are installed: `npm install` in frontend
+- Clear browser cache
+- Check browser console for errors
+
 ### Database errors
 
 - Ensure PostGIS extension is installed
@@ -495,13 +588,18 @@ For issues and questions:
 
 ## 🗺️ Roadmap
 
+- [x] Interactive map with route selection
+- [x] Multiple route comparison
+- [x] GNN-based traffic prediction on routes
+- [ ] Train GNN model with real traffic data
 - [ ] Mobile app (React Native)
-- [ ] More ML models (LSTM, Transformer)
-- [ ] Real-time notifications
+- [ ] Real-time traffic updates on routes
+- [ ] Turn-by-turn navigation
 - [ ] Multi-city support
-- [ ] Advanced route optimization
 - [ ] Traffic incident reporting
 - [ ] Integration with navigation apps
+- [ ] Voice guidance
+- [ ] Offline map support
 
 ## ⭐ Star History
 
