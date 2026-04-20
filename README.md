@@ -19,6 +19,18 @@ SANJAYA is a full-stack traffic intelligence platform. You type a place name (e.
 
 ## Screenshots
 
+| Oracle Dashboard | Neural Flow Optimizer |
+|---|---|
+| ![Oracle Dashboard](docs/screenshots/dashboard.png) | ![Neural Flow Optimizer](docs/screenshots/flow-optimizer.png) |
+
+| Predictive Hub | System Health |
+|---|---|
+| ![Predictive Hub](docs/screenshots/predictive-hub.png) | ![System Health](docs/screenshots/system-health.png) |
+
+---
+
+## Screenshots
+
 The dashboard has four pages accessible from the sidebar:
 
 | Page | Description |
