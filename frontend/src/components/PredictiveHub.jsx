@@ -2,12 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 
 const MODEL_LABELS = { tabnet_cause: 'Cause Classifier', tabnet_delay: 'Delay Regressor', tabnet_combined: 'Combined Model', gnn: 'GNN Spatial' };
-const MODEL_ICONS = { tabnet_cause: 'target', tabnet_delay: 'timer', tabnet_combined: 'psychology', gnn: 'hub' };
+const MODEL_ICONS  = { tabnet_cause: 'target', tabnet_delay: 'timer', tabnet_combined: 'psychology', gnn: 'hub' };
+
+// Monitoring locations grouped into zones
+const ZONES = [
+  { name: 'North Corridor', icon: 'north_east', locations: [{ lat: 13.1986, lon: 77.7066 }] },
+  { name: 'Central Hub',    icon: 'hub',        locations: [{ lat: 12.9757, lon: 77.6011 }, { lat: 12.9784, lon: 77.6408 }] },
+  { name: 'South Cluster',  icon: 'south_east', locations: [{ lat: 12.9352, lon: 77.6245 }, { lat: 12.9698, lon: 77.7499 }] },
+];
 
 const PredictiveHub = () => {
-  const [models, setModels] = useState([]);
+  const [models, setModels]             = useState([]);
   const [feedbackStats, setFeedbackStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [zoneData, setZoneData]         = useState({});
+  const [loading, setLoading]           = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -18,10 +26,38 @@ const PredictiveHub = () => {
       ]);
       if (modelsRes.status === 'fulfilled') setModels(modelsRes.value);
       if (statsRes.status === 'fulfilled') setFeedbackStats(statsRes.value);
+
+      // Fetch traffic for each zone's locations and average congestion
+      const zd = {};
+      await Promise.allSettled(
+        ZONES.map(async (zone) => {
+          const readings = await Promise.allSettled(
+            zone.locations.map(loc => api.traffic(loc.lat, loc.lon, 1))
+          );
+          const valid = readings
+            .filter(r => r.status === 'fulfilled' && r.value?.length > 0)
+            .map(r => r.value[0]);
+          if (valid.length > 0) {
+            const avgCongestion = valid.reduce((s, d) => s + d.congestion_ratio, 0) / valid.length;
+            const avgSpeed      = valid.reduce((s, d) => s + d.current_speed, 0) / valid.length;
+            zd[zone.name] = { avgCongestion, avgSpeed, count: valid.length };
+          } else {
+            zd[zone.name] = null;
+          }
+        })
+      );
+      setZoneData(zd);
       setLoading(false);
     };
     load();
   }, []);
+
+  const zoneStatus = (avgCongestion) => {
+    if (avgCongestion == null) return { label: 'No Data', color: 'text-outline', bar: '#474557', pct: 0 };
+    if (avgCongestion < 1.5)  return { label: 'Normal',   color: 'text-secondary-fixed-dim', bar: '#00dce5', pct: Math.min(avgCongestion / 5 * 100, 100) };
+    if (avgCongestion < 3.0)  return { label: 'Elevated', color: 'text-tertiary',             bar: '#ffb59c', pct: Math.min(avgCongestion / 5 * 100, 100) };
+    return                           { label: 'Critical',  color: 'text-error',                bar: '#ffb4ab', pct: Math.min(avgCongestion / 5 * 100, 100) };
+  };
 
   const hasModels = models.length > 0;
   const metrics = feedbackStats?.metrics || {};
@@ -187,6 +223,36 @@ const PredictiveHub = () => {
                 </div>
               )}
             </div>
+          </div>
+          {/* Sector zone cards — real aggregated data */}
+          <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {ZONES.map((zone) => {
+              const d  = zoneData[zone.name];
+              const st = zoneStatus(d?.avgCongestion);
+              return (
+                <div key={zone.name} className={`bg-surface-container-low rounded-xl p-5 border border-outline-variant/10 hover:border-outline-variant/25 transition-all group`}>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-medium text-on-surface">{zone.name}</span>
+                    <span className={`material-symbols-outlined text-outline group-hover:${st.color} transition-colors text-sm`}>{zone.icon}</span>
+                  </div>
+                  <div className="flex items-end gap-3 mb-2">
+                    <span className={`text-2xl font-bold tracking-tight ${st.color}`}>{st.label}</span>
+                    {d && (
+                      <span className={`text-xs mb-1 flex items-center gap-0.5 ${st.color}`}>
+                        <span className="material-symbols-outlined text-[13px]">speed</span>
+                        {d.avgSpeed.toFixed(0)} km/h
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-full bg-surface-container h-1 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${st.pct}%`, background: st.bar }}></div>
+                  </div>
+                  <p className="text-[10px] text-outline mt-2">
+                    {d ? `${d.count} sensor${d.count > 1 ? 's' : ''} · avg congestion ${d.avgCongestion.toFixed(2)}×` : 'No sensor data available'}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

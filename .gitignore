@@ -51,6 +51,9 @@ backend/models/*.pth
 backend/models/*.zip
 backend/models/*.pkl
 
+# OSMnx road network cache (auto-regenerated, can be very large)
+backend/cache/
+
 # Training data (large files)
 training_data.csv
 training_data.json

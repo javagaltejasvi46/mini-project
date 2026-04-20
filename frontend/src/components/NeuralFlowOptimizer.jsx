@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 import PlaceSearchInput from './PlaceSearchInput';
 import RouteMap from './RouteMap';
@@ -16,8 +17,16 @@ const trafficColor = (level) => {
 };
 
 const NeuralFlowOptimizer = () => {
+  const location = useLocation();
   const [origin, setOrigin] = useState({ name: '', lat: null, lon: null });
   const [dest,   setDest]   = useState({ name: '', lat: null, lon: null });
+
+  // Pre-fill origin if navigated here from the top nav search
+  useEffect(() => {
+    if (location.state?.origin) {
+      setOrigin(location.state.origin);
+    }
+  }, [location.state]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
