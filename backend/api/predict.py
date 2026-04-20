@@ -5,7 +5,6 @@ from database import get_db
 from models import TrafficData, Prediction
 from schemas import PredictionRequest, PredictionResponse
 from ml.orchestrator import MLPipelineOrchestrator
-from clients.osmnx_client import OSMnxClient
 from config import settings
 import logging
 
@@ -44,7 +43,6 @@ async def predict_traffic(
         
         if not traffic_data:
             logger.warning(f"No traffic data found for {request.location_name}")
-            # Use fallback prediction with sample data
             from datetime import datetime, timedelta
             now = datetime.now()
             sample_traffic_data = [
@@ -55,7 +53,6 @@ async def predict_traffic(
                 }
                 for i in range(12)
             ]
-            
             return PredictionResponse(
                 prediction_id=None,
                 location=request.location_name,
@@ -74,25 +71,16 @@ async def predict_traffic(
                 ]
             )
         
-        try:
-            road_network = OSMnxClient.get_road_network(
-                request.latitude,
-                request.longitude,
-                radius_m=5000
-            )
-        except Exception as e:
-            logger.error(f"Failed to fetch road network: {e}")
-            road_network = None
-        
+        # Run ML prediction — no road network needed here, saves 5-15s
         ml_results = await ml_orchestrator.run_prediction_pipeline(
             request.latitude,
             request.longitude,
             traffic_data,
-            road_network
+            None  # road_network not needed for TabNet prediction
         )
+
     except Exception as e:
         logger.error(f"Error in predict_traffic: {e}", exc_info=True)
-        # Return fallback prediction on any error
         from datetime import datetime, timedelta
         now = datetime.now()
         sample_traffic_data = [
@@ -103,7 +91,6 @@ async def predict_traffic(
             }
             for i in range(12)
         ]
-        
         return PredictionResponse(
             prediction_id=None,
             location=request.location_name,
@@ -124,7 +111,7 @@ async def predict_traffic(
     prediction = Prediction(
         location=query_point,
         cause=ml_results["cause"],
-        delay=float(ml_results["delay"]),  # Convert numpy float to Python float
+        delay=float(ml_results["delay"]),
         confidence=0.85,
         traffic_data_id=traffic_data[0].id if traffic_data else None
     )

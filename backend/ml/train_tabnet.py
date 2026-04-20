@@ -13,7 +13,7 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def prepare_data(csv_file='../training_data.csv'):
+def prepare_data(csv_file='training_data.csv'):
     """Load and prepare training data from CSV file"""
     
     logger.info(f"Loading data from {csv_file}...")

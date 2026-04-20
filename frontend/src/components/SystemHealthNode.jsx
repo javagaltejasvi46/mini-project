@@ -1,133 +1,248 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../api';
+
+const MONITORING_LOCATIONS = [
+  { id: 'BNG-MGR-001', name: 'MG Road', lat: 12.9757, lon: 77.6011 },
+  { id: 'BNG-APT-002', name: 'Airport Road', lat: 13.1986, lon: 77.7066 },
+  { id: 'BNG-KRM-003', name: 'Koramangala', lat: 12.9352, lon: 77.6245 },
+  { id: 'BNG-WFD-004', name: 'Whitefield', lat: 12.9698, lon: 77.7499 },
+  { id: 'BNG-IND-005', name: 'Indiranagar', lat: 12.9784, lon: 77.6408 },
+];
+
+const congestionColor = (ratio) => {
+  if (ratio < 1.5) return '#00dce5';
+  if (ratio < 3.0) return '#ffb59c';
+  return '#ffb4ab';
+};
+
+const congestionLabel = (ratio) => {
+  if (ratio < 1.5) return 'Optimal';
+  if (ratio < 3.0) return 'Elevated';
+  return 'Critical';
+};
 
 const SystemHealthNode = () => {
+  const [health, setHealth] = useState(null);
+  const [nodeData, setNodeData] = useState({});
+  const [selectedNode, setSelectedNode] = useState(MONITORING_LOCATIONS[0]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('All Nodes');
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      setLoading(true);
+      // Health check
+      const h = await api.health().catch(() => ({ status: 'unreachable' }));
+      setHealth(h);
+
+      // Fetch nearby traffic for each monitoring location
+      const results = {};
+      await Promise.allSettled(
+        MONITORING_LOCATIONS.map(async (loc) => {
+          const data = await api.traffic(loc.lat, loc.lon, 1).catch(() => []);
+          results[loc.id] = data[0] || null; // take closest sensor
+        })
+      );
+      setNodeData(results);
+      setLoading(false);
+    };
+    fetchAll();
+    const id = setInterval(fetchAll, 60000); // refresh every minute
+    return () => clearInterval(id);
+  }, []);
+
+  const healthColor = !health ? '#928ea3'
+    : health.status === 'healthy' ? '#00dce5'
+    : health.status === 'unreachable' ? '#ffb4ab'
+    : '#ffb59c';
+
+  const activeNodes = MONITORING_LOCATIONS.filter(l => nodeData[l.id]).length;
+  const selectedData = nodeData[selectedNode.id];
+
+  const filteredNodes = MONITORING_LOCATIONS.filter(loc => {
+    const d = nodeData[loc.id];
+    if (filter === 'All Nodes') return true;
+    if (filter === 'Critical') return d && d.congestion_ratio >= 3.0;
+    if (filter === 'Offline') return !d;
+    return true;
+  });
+
   return (
-    <main className="flex-1 relative pt-20 md:pt-0 overflow-hidden h-full flex flex-col">
-      {/* Background Neural Network Visualization Area (Simulated) */}
-      <div 
-        className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-10" 
-        title="abstract dark background with subtle glowing network lines representing a digital neural network map of bangalore traffic nodes in deep purple and cyan hues"
-      ></div>
+    <main className="flex-1 relative overflow-hidden h-full flex flex-col">
+      <div className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-10 pointer-events-none"></div>
       <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-surface z-0 pointer-events-none"></div>
-      
-      <div className="relative z-10 w-full h-full p-8 flex flex-col md:flex-row gap-8">
-        {/* Left Column: Global Health & Active Node Info */}
-        <div className="w-full md:w-1/3 flex flex-col gap-8 h-full">
-          {/* System Status Header */}
+
+      <div className="relative z-10 w-full h-full p-8 flex flex-col md:flex-row gap-8 overflow-y-auto">
+        {/* Left column */}
+        <div className="w-full md:w-1/3 flex flex-col gap-6">
           <header>
-            <h2 className="text-[1.75rem] font-bold font-headline tracking-[-0.02em] text-on-surface">System Health</h2>
+            <h2 className="text-[1.75rem] font-bold tracking-[-0.02em] text-on-surface">System Health</h2>
             <div className="flex items-center gap-2 mt-2">
-              <span className="w-2 h-2 rounded-full bg-secondary-fixed-dim shadow-[0_0_0_0_rgba(0,244,254,0.4)] animate-[pulse_2s_infinite]"></span>
-              <span className="text-[0.75rem] font-medium tracking-[0.1em] uppercase text-secondary-fixed-dim">Network Optimal</span>
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: healthColor }}></span>
+              <span className="text-[0.75rem] font-medium tracking-[0.1em] uppercase" style={{ color: healthColor }}>
+                {health?.status === 'healthy' ? 'Network Optimal' : health?.status === 'unreachable' ? 'Backend Offline' : 'Checking...'}
+              </span>
             </div>
           </header>
-          
-          {/* Global Metrics Bento Box */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-surface-container-high rounded-xl p-6 shadow-[0_40px_80px_rgba(0,0,0,0.4)]">
-              <p className="text-[0.75rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Throughput</p>
-              <p className="text-3xl font-bold tracking-tight text-white">4.2 <span className="text-sm font-normal text-outline">TB/s</span></p>
+
+          {/* Global metrics */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-surface-container-high rounded-xl p-5">
+              <p className="text-[0.7rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Backend</p>
+              <p className="text-2xl font-bold tracking-tight text-white capitalize">{health?.status ?? '—'}</p>
             </div>
-            <div className="bg-surface-container-high rounded-xl p-6 shadow-[0_40px_80px_rgba(0,0,0,0.4)]">
-              <p className="text-[0.75rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Active Nodes</p>
-              <p className="text-3xl font-bold tracking-tight text-white">1,204</p>
+            <div className="bg-surface-container-high rounded-xl p-5">
+              <p className="text-[0.7rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Active Nodes</p>
+              <p className="text-2xl font-bold tracking-tight text-white">{loading ? '...' : `${activeNodes} / ${MONITORING_LOCATIONS.length}`}</p>
             </div>
-            <div className="col-span-2 bg-surface-container-high rounded-xl p-6 shadow-[0_40px_80px_rgba(0,0,0,0.4)] relative overflow-hidden group">
-              <div className="absolute right-0 top-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all"></div>
-              <p className="text-[0.75rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Global Error Rate</p>
-              <div className="flex items-end justify-between">
-                <p className="text-[3.5rem] font-bold font-headline tracking-[-0.02em] leading-none bg-gradient-to-br from-[#c8bfff] to-[#582cff] bg-clip-text text-transparent">0.03%</p>
-                <span className="material-symbols-outlined text-secondary-fixed-dim mb-2 text-2xl">trending_down</span>
-              </div>
+            <div className="bg-surface-container-high rounded-xl p-5">
+              <p className="text-[0.7rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Database</p>
+              <p className="text-2xl font-bold tracking-tight text-white capitalize">{health?.database ?? '—'}</p>
+            </div>
+            <div className="bg-surface-container-high rounded-xl p-5">
+              <p className="text-[0.7rem] font-medium tracking-[0.1em] uppercase text-outline mb-2">Scheduler</p>
+              <p className="text-2xl font-bold tracking-tight text-white capitalize">{health?.scheduler ?? '—'}</p>
             </div>
           </div>
-          
-          {/* Focused Node Detail Panel (Glassmorphism) */}
-          <div className="mt-auto bg-[#353436]/60 backdrop-blur-[24px] rounded-xl p-8 shadow-[0_40px_80px_rgba(0,0,0,0.4)] border border-outline-variant/15 flex-1 max-h-[400px] flex flex-col">
-            <div className="flex justify-between items-start mb-6">
+
+          {/* Selected node detail */}
+          <div className="bg-[#353436]/60 backdrop-blur-[24px] rounded-xl p-6 border border-outline-variant/15 flex flex-col gap-4">
+            <div className="flex justify-between items-start">
               <div>
-                <p className="text-[0.75rem] font-medium tracking-[0.1em] uppercase text-primary mb-1">Inspecting Node</p>
-                <h3 className="text-xl font-bold text-white">BNG-KRM-042</h3>
+                <p className="text-[0.7rem] font-medium tracking-[0.1em] uppercase text-primary mb-1">Inspecting Node</p>
+                <h3 className="text-lg font-bold text-white">{selectedNode.id}</h3>
               </div>
-              <span className="px-3 py-1 bg-surface-container-lowest rounded-full text-xs text-outline border border-outline-variant/30">Koramangala</span>
+              <span className="px-3 py-1 bg-surface-container-lowest rounded-full text-xs text-outline border border-outline-variant/30">{selectedNode.name}</span>
             </div>
-            
-            {/* Pulse Meter Visualization */}
-            <div className="flex-1 flex items-center justify-center relative">
-              <div className="w-48 h-48 rounded-full border-4 border-surface-container-lowest relative flex items-center justify-center">
+
+            {/* Gauge */}
+            <div className="flex items-center justify-center py-4">
+              <div className="w-40 h-40 rounded-full border-4 border-surface-container-lowest relative flex items-center justify-center">
                 <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle className="text-primary-container" cx="50" cy="50" fill="none" r="46" stroke="#582cff" strokeDasharray="289" strokeDashoffset="40" strokeWidth="4"></circle>
-                  <circle className="text-secondary-fixed-dim opacity-60" cx="50" cy="50" fill="none" r="40" stroke="#00dce5" strokeDasharray="251" strokeDashoffset="180" strokeWidth="2"></circle>
+                  <circle cx="50" cy="50" fill="none" r="46"
+                    stroke={selectedData ? congestionColor(selectedData.congestion_ratio) : '#474557'}
+                    strokeDasharray="289"
+                    strokeDashoffset={selectedData ? 289 - (Math.min(selectedData.congestion_ratio / 5, 1) * 289) : 289}
+                    strokeWidth="4"
+                    style={{ transition: 'stroke-dashoffset 0.7s ease' }}
+                  />
                 </svg>
                 <div className="text-center">
-                  <p className="text-sm text-outline mb-1">Load</p>
-                  <p className="text-2xl font-bold text-white">86%</p>
+                  <p className="text-xs text-outline mb-1">Congestion</p>
+                  <p className="text-xl font-bold text-white">
+                    {selectedData ? `${(selectedData.congestion_ratio * 20).toFixed(0)}` : '—'}
+                  </p>
+                  <p className="text-[10px]" style={{ color: selectedData ? congestionColor(selectedData.congestion_ratio) : '#928ea3' }}>
+                    {selectedData ? congestionLabel(selectedData.congestion_ratio) : 'No data'}
+                  </p>
                 </div>
               </div>
             </div>
-            
-            <div className="mt-6 flex justify-between border-t border-outline-variant/15 pt-4">
-              <div>
-                <p className="text-xs text-outline">Latency</p>
-                <p className="text-sm font-semibold text-white">12ms</p>
+
+            {selectedData ? (
+              <div className="grid grid-cols-3 gap-2 border-t border-outline-variant/15 pt-4">
+                <div className="text-center">
+                  <p className="text-[10px] text-outline mb-1">Speed</p>
+                  <p className="text-sm font-semibold text-white">{selectedData.current_speed.toFixed(0)} km/h</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-outline mb-1">Rain</p>
+                  <p className="text-sm font-semibold text-white">{selectedData.rain > 0 ? `${selectedData.rain.toFixed(1)}mm` : 'None'}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-outline mb-1">Alerts</p>
+                  <p className="text-sm font-semibold" style={{ color: (selectedData.accident || selectedData.event) ? '#ffb4ab' : '#00dce5' }}>
+                    {selectedData.accident ? '🚨' : selectedData.event ? '🎪' : '✓ Clear'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-outline">Packets Drop</p>
-                <p className="text-sm font-semibold text-white">0.001%</p>
-              </div>
-              <div>
-                <p className="text-xs text-outline">Status</p>
-                <p className="text-sm font-semibold text-secondary-fixed-dim">Stable</p>
-              </div>
-            </div>
+            ) : (
+              <p className="text-xs text-on-surface-variant text-center">No sensor data available for this node.</p>
+            )}
           </div>
         </div>
-        
-        {/* Right Column: Map / Neural Visualization Area */}
-        <div className="w-full md:w-2/3 h-full rounded-xl bg-surface-container-low relative overflow-hidden border border-outline-variant/10 shadow-[0_40px_80px_rgba(0,0,0,0.4)]">
-          {/* Map Layer */}
-          <div 
-            className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center mix-blend-luminosity opacity-20" 
-            title="dark high contrast satellite map view of bangalore city streets at night used as a backdrop for data visualization"
-          ></div>
-          
-          {/* Map UI Overlays */}
-          <div className="absolute top-6 left-6 flex gap-2">
-            <button className="bg-surface-container-highest/80 backdrop-blur-md text-white px-4 py-2 rounded-full text-sm border border-outline-variant/20 hover:bg-surface-bright transition-colors">All Nodes</button>
-            <button className="bg-surface-container-lowest/80 backdrop-blur-md text-outline px-4 py-2 rounded-full text-sm border border-transparent hover:text-white transition-colors">Critical</button>
-            <button className="bg-surface-container-lowest/80 backdrop-blur-md text-outline px-4 py-2 rounded-full text-sm border border-transparent hover:text-white transition-colors">Offline</button>
+
+        {/* Right column — node map */}
+        <div className="w-full md:w-2/3 h-full rounded-xl bg-surface-container-low relative overflow-hidden border border-outline-variant/10">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center mix-blend-luminosity opacity-15"></div>
+
+          {/* Filter buttons */}
+          <div className="absolute top-5 left-5 flex gap-2 z-10">
+            {['All Nodes', 'Critical', 'Offline'].map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-full text-sm border transition-colors ${filter === f ? 'bg-surface-container-highest/80 text-white border-outline-variant/20' : 'bg-surface-container-lowest/80 text-outline border-transparent hover:text-white'}`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
-          <div className="absolute bottom-6 right-6 bg-surface-container-highest/80 backdrop-blur-md p-4 rounded-xl border border-outline-variant/20">
+
+          {/* Legend */}
+          <div className="absolute bottom-5 right-5 bg-surface-container-highest/80 backdrop-blur-md p-3 rounded-xl border border-outline-variant/20 z-10">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-xs text-outline">
-                <span className="w-2 h-2 rounded-full bg-secondary-fixed-dim"></span> Optimal
-              </div>
-              <div className="flex items-center gap-2 text-xs text-outline">
-                <span className="w-2 h-2 rounded-full bg-tertiary"></span> Congested
-              </div>
-              <div className="flex items-center gap-2 text-xs text-outline">
-                <span className="w-2 h-2 rounded-full bg-error"></span> Failure
-              </div>
+              {[['#00dce5', 'Optimal'], ['#ffb59c', 'Elevated'], ['#ffb4ab', 'Critical'], ['#474557', 'Offline']].map(([color, label]) => (
+                <div key={label} className="flex items-center gap-1.5 text-xs text-outline">
+                  <span className="w-2 h-2 rounded-full" style={{ background: color }}></span> {label}
+                </div>
+              ))}
             </div>
           </div>
-          
-          {/* Simulated Node Interactive Point */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
-            <div className="w-4 h-4 rounded-full bg-primary relative z-10 shadow-[0_0_15px_rgba(200,191,255,0.8)]"></div>
-            <div className="absolute inset-0 w-full h-full rounded-full bg-primary/40 animate-ping z-0"></div>
-            {/* Hover Tooltip */}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-max opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest border border-outline-variant/30 rounded-lg px-3 py-2 pointer-events-none shadow-lg">
-              <p className="text-xs font-bold text-white">BNG-KRM-042</p>
-              <p className="text-[10px] text-primary mt-1">Click to inspect</p>
-            </div>
+
+          {/* Node dots */}
+          {filteredNodes.map((loc, i) => {
+            const d = nodeData[loc.id];
+            const color = d ? congestionColor(d.congestion_ratio) : '#474557';
+            // Spread nodes across the visualization area
+            const positions = [
+              { top: '50%', left: '50%' },
+              { top: '25%', left: '70%' },
+              { top: '65%', left: '30%' },
+              { top: '35%', left: '35%' },
+              { top: '55%', left: '65%' },
+            ];
+            const pos = positions[i % positions.length];
+            return (
+              <div
+                key={loc.id}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer z-10"
+                style={pos}
+                onClick={() => setSelectedNode(loc)}
+              >
+                <div className="w-4 h-4 rounded-full relative z-10 shadow-[0_0_15px_rgba(200,191,255,0.8)]" style={{ background: color }}></div>
+                {selectedNode.id === loc.id && (
+                  <div className="absolute inset-0 w-full h-full rounded-full animate-ping z-0" style={{ background: `${color}40` }}></div>
+                )}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-max opacity-0 group-hover:opacity-100 transition-opacity bg-surface-container-highest border border-outline-variant/30 rounded-lg px-3 py-2 pointer-events-none shadow-lg z-20">
+                  <p className="text-xs font-bold text-white">{loc.id}</p>
+                  <p className="text-[10px] text-on-surface-variant">{loc.name}</p>
+                  {d && <p className="text-[10px] mt-0.5" style={{ color }}>{congestionLabel(d.congestion_ratio)} · {d.current_speed.toFixed(0)} km/h</p>}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Node list overlay */}
+          <div className="absolute top-16 right-5 flex flex-col gap-2 z-10 max-h-[60%] overflow-y-auto">
+            {filteredNodes.map(loc => {
+              const d = nodeData[loc.id];
+              const color = d ? congestionColor(d.congestion_ratio) : '#474557';
+              return (
+                <button
+                  key={loc.id}
+                  onClick={() => setSelectedNode(loc)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all border ${selectedNode.id === loc.id ? 'bg-surface-container-highest/80 border-outline-variant/30' : 'bg-surface-container-lowest/60 border-transparent hover:bg-surface-container-highest/60'}`}
+                >
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }}></span>
+                  <div>
+                    <p className="text-xs font-medium text-white">{loc.name}</p>
+                    <p className="text-[10px] text-outline">{d ? `${d.current_speed.toFixed(0)} km/h · ${congestionLabel(d.congestion_ratio)}` : 'No data'}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-          
-          {/* Simulated connections */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <path className="opacity-30" d="M 500,300 C 400,200 300,400 200,250" fill="none" stroke="#474557" strokeWidth="1"></path>
-            <path className="opacity-30" d="M 500,300 C 600,400 700,200 800,350" fill="none" stroke="#474557" strokeWidth="1"></path>
-            <path className="opacity-50" d="M 500,300 C 450,450 350,500 250,600" fill="none" stroke="#c8bfff" strokeWidth="2"></path>
-          </svg>
         </div>
       </div>
     </main>
