@@ -72,7 +72,7 @@ const PlaceSearchInput = ({ label, dotColor, dotGlow, icon, iconColor, placehold
 
       {/* Input */}
       <div className="relative">
-        <div className={`flex items-center gap-2 bg-surface-container-low rounded-lg border transition-colors px-3 py-2.5 ${resolved ? 'border-secondary-fixed-dim/40' : 'border-outline-variant/15 focus-within:border-primary/40'}`}>
+        <div className={`flex items-center gap-2 bg-surface-container-low rounded-lg border transition-colors px-3 py-2.5 ${resolved ? 'border-secondary-fixed-dim/50' : 'border-outline-variant/35 focus-within:border-primary/60'}`}>
           <span className={`material-symbols-outlined text-[18px] flex-shrink-0 ${iconColor}`} style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
           <input
             className="bg-transparent border-none outline-none text-sm text-on-surface flex-1 placeholder:text-outline/50 min-w-0"

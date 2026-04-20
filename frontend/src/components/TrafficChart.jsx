@@ -1,75 +1,91 @@
 import React from 'react';
+import { useReveal } from '../hooks/useReveal';
 
 const TrafficChart = ({ data }) => {
   if (!data || data.length === 0) return null;
+  const [chartRef, chartVisible] = useReveal();
 
-  const maxTraffic = Math.max(...data.map(d => d.traffic_level), 1);
-  const maxSpeed   = Math.max(...data.map(d => d.speed), 1);
+  const maxTraffic  = Math.max(...data.map(d => d.traffic_level), 1);
+  const maxSpeed    = Math.max(...data.map(d => d.speed), 1);
   const peakTraffic = Math.max(...data.map(d => d.traffic_level));
   const peakSpeed   = Math.max(...data.map(d => d.speed));
 
   return (
-    <div className="bg-surface-container-high rounded-xl border border-outline-variant/10 overflow-hidden">
-      {/* Header */}
-      <div className="bg-surface-container-highest/40 backdrop-blur-[12px] px-6 py-4 flex justify-between items-center border-b border-outline-variant/10">
+    <div ref={chartRef} className="flex flex-col gap-0 h-full">
+      {/* Header with inline stats */}
+      <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-[18px]">waves</span>
-          <h3 className="text-[0.75rem] uppercase tracking-[0.1em] font-semibold text-primary">Traffic Trends</h3>
+          <span className="material-symbols-outlined text-outline text-[16px]">stacked_bar_chart</span>
+          <span className="text-[0.7rem] uppercase tracking-[0.1em] font-semibold text-outline">Traffic Trends</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-[11px] text-on-surface-variant">
-            <span className="w-2.5 h-2.5 rounded-sm bg-primary inline-block"></span>Traffic
+        <div className="flex items-center gap-4 text-[11px] text-on-surface-variant">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-sm bg-primary/80 inline-block"></span>
+            Traffic <span className="text-primary font-semibold ml-0.5">{peakTraffic}</span> peak
           </span>
-          <span className="flex items-center gap-1.5 text-[11px] text-on-surface-variant">
-            <span className="w-2.5 h-2.5 rounded-sm bg-secondary-fixed-dim inline-block"></span>Speed
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-sm bg-secondary-fixed-dim/80 inline-block"></span>
+            Speed <span className="text-secondary-fixed-dim font-semibold ml-0.5">{peakSpeed.toFixed(0)} km/h</span>
+          </span>
+          <span className="flex items-center gap-1 text-outline">
+            <span className="material-symbols-outlined text-[12px]">schedule</span>
+            2h window
           </span>
         </div>
       </div>
 
-      <div className="p-6">
-        {/* Chart */}
-        <div className="flex items-end gap-1 h-48 bg-surface-container-lowest rounded-xl px-4 py-4 mb-4 overflow-x-auto">
-          {data.map((point, i) => {
-            const tH = Math.max((point.traffic_level / maxTraffic) * 100, 2);
-            const sH = Math.max((point.speed / maxSpeed) * 100, 2);
-            return (
-              <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-[28px] group">
-                <div className="flex items-end gap-0.5 h-36 w-full justify-center">
-                  <div
-                    className="w-2.5 rounded-t-sm bg-primary/70 group-hover:bg-primary transition-colors relative"
-                    style={{ height: `${tH}%` }}
-                    title={`Traffic: ${point.traffic_level}`}
-                  ></div>
-                  <div
-                    className="w-2.5 rounded-t-sm bg-secondary-fixed-dim/70 group-hover:bg-secondary-fixed-dim transition-colors"
-                    style={{ height: `${sH}%` }}
-                    title={`Speed: ${point.speed.toFixed(1)} km/h`}
-                  ></div>
-                </div>
-                {i % 4 === 0 && (
-                  <span className="text-[9px] text-outline whitespace-nowrap">{point.time}</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+      {/* Chart — no inner card, just bars on transparent bg */}
+      <div className="flex-1 flex items-end gap-[3px] px-1 pb-5 relative min-h-[180px]">
+        {/* Subtle horizontal grid lines */}
+        {[25, 50, 75, 100].map(pct => (
+          <div
+            key={pct}
+            className="absolute left-0 right-0 border-t border-outline-variant/10 pointer-events-none"
+            style={{ bottom: `${pct}%` }}
+          />
+        ))}
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { icon: 'trending_up', label: 'Peak Traffic', value: peakTraffic, color: 'text-primary' },
-            { icon: 'speed',       label: 'Max Speed',    value: `${peakSpeed.toFixed(0)} km/h`, color: 'text-secondary-fixed-dim' },
-            { icon: 'schedule',    label: 'Time Range',   value: '2 Hours', color: 'text-tertiary' },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border border-outline-variant/10 hover:border-outline-variant/25 transition-colors">
-              <span className={`material-symbols-outlined text-[20px] ${s.color}`}>{s.icon}</span>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.1em] text-outline font-semibold">{s.label}</p>
-                <p className={`text-sm font-bold ${s.color}`}>{s.value}</p>
+        {data.map((point, i) => {
+          const tH = Math.max((point.traffic_level / maxTraffic) * 100, 2);
+          const sH = Math.max((point.speed / maxSpeed) * 100, 2);
+          return (
+            <div key={i} className="flex flex-col items-center gap-0 flex-1 min-w-0 group relative">
+              {/* Hover tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 bg-surface-container-highest border border-outline-variant/20 rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-lg">
+                <p className="text-[10px] text-primary font-semibold">{point.traffic_level} traffic</p>
+                <p className="text-[10px] text-secondary-fixed-dim">{point.speed.toFixed(0)} km/h</p>
+                <p className="text-[9px] text-outline">{point.time}</p>
               </div>
+
+              <div className="flex items-end gap-[2px] w-full justify-center" style={{ height: '160px' }}>
+                {/* Traffic bar — gradient, grows up on reveal */}
+                <div
+                  className={`flex-1 rounded-t-[3px] transition-opacity duration-300 group-hover:opacity-100 opacity-80 ${chartVisible ? 'bar-grow is-visible' : 'bar-grow'}`}
+                  style={{
+                    height: `${tH}%`,
+                    background: 'linear-gradient(to top, #582cff, #c8bfff)',
+                    minWidth: '4px',
+                    animationDelay: `${i * 18}ms`,
+                  }}
+                />
+                {/* Speed bar — gradient */}
+                <div
+                  className={`flex-1 rounded-t-[3px] transition-opacity duration-300 group-hover:opacity-100 opacity-80 ${chartVisible ? 'bar-grow is-visible' : 'bar-grow'}`}
+                  style={{
+                    height: `${sH}%`,
+                    background: 'linear-gradient(to top, #004f53, #00dce5)',
+                    minWidth: '4px',
+                    animationDelay: `${i * 18 + 9}ms`,
+                  }}
+                />
+              </div>
+
+              {i % 4 === 0 && (
+                <span className="text-[8px] text-outline/60 mt-1.5 whitespace-nowrap">{point.time}</span>
+              )}
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
