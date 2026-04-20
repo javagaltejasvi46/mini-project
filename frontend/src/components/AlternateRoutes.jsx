@@ -33,8 +33,8 @@ const AlternateRoutes = ({ routesData, recommendations }) => {
 
   return (
     <div
-      className="rounded-xl border border-outline-variant/10 overflow-hidden"
-      style={{ background: '#1c1b1c', borderTop: '2px solid rgba(200,191,255,0.35)' }}
+      className="rounded-xl border border-outline-variant/10 overflow-hidden bg-surface-container-high"
+      style={{ borderTop: '2px solid rgba(200,191,255,0.35)' }}
     >
       {/* Header */}
       <div className="px-6 py-4 flex justify-between items-center border-b border-outline-variant/10">
@@ -152,7 +152,7 @@ const AlternateRoutes = ({ routesData, recommendations }) => {
                     {/* Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1">
-                        {i === 0 && <span className="text-[10px] text-secondary-fixed-dim font-bold">★</span>}
+                        {i === 0 && <span className="text-[10px] text-primary font-bold">★</span>}
                         <span className={`text-sm font-semibold ${isSelected ? 'text-on-surface' : 'text-on-surface-variant'}`}>
                           {ROUTE_NAMES[i] || `Route ${i + 1}`}
                         </span>
@@ -190,7 +190,7 @@ const AlternateRoutes = ({ routesData, recommendations }) => {
                         onClick={(e) => { e.stopPropagation(); setSelectedIndex(i); }}
                         className={`text-[10px] font-semibold px-3 py-1 rounded-lg transition-colors ${
                           isSelected
-                            ? 'bg-secondary-fixed-dim/15 text-secondary-fixed-dim'
+                            ? 'bg-secondary-fixed-dim/15 text-primary'
                             : 'bg-surface-container text-outline hover:text-primary border border-outline-variant/15'
                         }`}
                       >

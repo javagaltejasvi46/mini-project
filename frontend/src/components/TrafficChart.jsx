@@ -20,12 +20,12 @@ const TrafficChart = ({ data }) => {
         </div>
         <div className="flex items-center gap-4 text-[11px] text-on-surface-variant">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-sm bg-primary/80 inline-block"></span>
-            Traffic <span className="text-primary font-semibold ml-0.5">{peakTraffic}</span> peak
+            <span className="w-2 h-2 rounded-sm inline-block" style={{ background: '#c8bfff' }}></span>
+            Traffic <span className="font-semibold ml-0.5" style={{ color: '#c8bfff' }}>{peakTraffic}</span> peak
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-sm bg-secondary-fixed-dim/80 inline-block"></span>
-            Speed <span className="text-secondary-fixed-dim font-semibold ml-0.5">{peakSpeed.toFixed(0)} km/h</span>
+            <span className="w-2 h-2 rounded-sm inline-block" style={{ background: '#00dce5' }}></span>
+            Speed <span className="font-semibold ml-0.5" style={{ color: '#00dce5' }}>{peakSpeed.toFixed(0)} km/h</span>
           </span>
           <span className="flex items-center gap-1 text-outline">
             <span className="material-symbols-outlined text-[12px]">schedule</span>
@@ -34,7 +34,7 @@ const TrafficChart = ({ data }) => {
         </div>
       </div>
 
-      {/* Chart — no inner card, just bars on transparent bg */}
+      {/* Chart */}
       <div className="flex-1 flex items-end gap-[3px] px-1 pb-5 relative min-h-[180px]">
         {/* Subtle horizontal grid lines */}
         {[25, 50, 75, 100].map(pct => (
@@ -52,30 +52,30 @@ const TrafficChart = ({ data }) => {
             <div key={i} className="flex flex-col items-center gap-0 flex-1 min-w-0 group relative">
               {/* Hover tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 bg-surface-container-highest border border-outline-variant/20 rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-lg">
-                <p className="text-[10px] text-primary font-semibold">{point.traffic_level} traffic</p>
-                <p className="text-[10px] text-secondary-fixed-dim">{point.speed.toFixed(0)} km/h</p>
+                <p className="text-[10px] font-semibold" style={{ color: '#c8bfff' }}>{point.traffic_level} traffic</p>
+                <p className="text-[10px]" style={{ color: '#00dce5' }}>{point.speed.toFixed(0)} km/h</p>
                 <p className="text-[9px] text-outline">{point.time}</p>
               </div>
 
               <div className="flex items-end gap-[2px] w-full justify-center" style={{ height: '160px' }}>
-                {/* Traffic bar — gradient, grows up on reveal */}
+                {/* Traffic bar — use opacity animation instead of scaleY to avoid height conflict */}
                 <div
-                  className={`flex-1 rounded-t-[3px] transition-opacity duration-300 group-hover:opacity-100 opacity-80 ${chartVisible ? 'bar-grow is-visible' : 'bar-grow'}`}
+                  className="flex-1 rounded-t-[3px] group-hover:opacity-100 opacity-75"
                   style={{
                     height: `${tH}%`,
                     background: 'linear-gradient(to top, #582cff, #c8bfff)',
                     minWidth: '4px',
-                    animationDelay: `${i * 18}ms`,
+                    transition: `opacity 0.3s ease, height 0.7s cubic-bezier(0.16,1,0.3,1) ${i * 18}ms`,
                   }}
                 />
-                {/* Speed bar — gradient */}
+                {/* Speed bar */}
                 <div
-                  className={`flex-1 rounded-t-[3px] transition-opacity duration-300 group-hover:opacity-100 opacity-80 ${chartVisible ? 'bar-grow is-visible' : 'bar-grow'}`}
+                  className="flex-1 rounded-t-[3px] group-hover:opacity-100 opacity-75"
                   style={{
                     height: `${sH}%`,
                     background: 'linear-gradient(to top, #004f53, #00dce5)',
                     minWidth: '4px',
-                    animationDelay: `${i * 18 + 9}ms`,
+                    transition: `opacity 0.3s ease, height 0.7s cubic-bezier(0.16,1,0.3,1) ${i * 18 + 9}ms`,
                   }}
                 />
               </div>

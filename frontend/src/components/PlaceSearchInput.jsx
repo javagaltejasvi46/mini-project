@@ -86,7 +86,7 @@ const PlaceSearchInput = ({ label, dotColor, dotGlow, icon, iconColor, placehold
             <span className="w-3.5 h-3.5 border border-primary/30 border-t-primary rounded-full animate-spin flex-shrink-0"></span>
           )}
           {resolved && !searching && (
-            <span className="material-symbols-outlined text-secondary-fixed-dim text-[14px] flex-shrink-0">check_circle</span>
+            <span className="material-symbols-outlined text-primary text-[14px] flex-shrink-0">check_circle</span>
           )}
         </div>
 

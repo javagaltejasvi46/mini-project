@@ -39,15 +39,15 @@ const TopNavBar = () => {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-[#131314]/60 backdrop-blur-[24px] shadow-[0_40px_80px_rgba(0,0,0,0.4)] flex justify-between items-center px-8 py-4">
+    <nav className="fixed top-0 w-full z-50 bg-surface-dim/60 backdrop-blur-[24px] shadow-[0_40px_80px_rgba(0,0,0,0.4)] flex justify-between items-center px-8 py-4">
       <div className="flex items-center gap-8">
-        <div className="text-lg font-black tracking-[-0.02em] text-[#c8bfff] uppercase">
+        <div className="text-lg font-black tracking-[-0.02em] text-primary uppercase">
           SANJAYA INSIGHT ENGINE
         </div>
         <div className="hidden md:flex gap-6 font-['Inter'] tracking-tight text-sm font-medium">
-          <NavLink to="/health" className={({ isActive }) => isActive ? "text-[#c8bfff] hover:bg-[#353436]/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-[#c8bfff]" : "text-[#a1a1aa] hover:text-[#c8bfff] hover:bg-[#353436]/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Network Status</NavLink>
-          <NavLink to="/flow-optimizer" className={({ isActive }) => isActive ? "text-[#c8bfff] hover:bg-[#353436]/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-[#c8bfff]" : "text-[#a1a1aa] hover:text-[#c8bfff] hover:bg-[#353436]/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Flow Analysis</NavLink>
-          <NavLink to="/predictive-hub" className={({ isActive }) => isActive ? "text-[#c8bfff] hover:bg-[#353436]/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-[#c8bfff]" : "text-[#a1a1aa] hover:text-[#c8bfff] hover:bg-[#353436]/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Predictive Hub</NavLink>
+          <NavLink to="/health" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Network Status</NavLink>
+          <NavLink to="/flow-optimizer" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Flow Analysis</NavLink>
+          <NavLink to="/predictive-hub" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Predictive Hub</NavLink>
         </div>
       </div>
 
@@ -88,19 +88,19 @@ const TopNavBar = () => {
         <div className="flex items-center gap-4 text-primary">
           <button
             title="Notifications — coming soon"
-            className="scale-[0.98] active:opacity-80 transition-transform hover:bg-[#353436]/50 p-2 rounded-full opacity-40 cursor-not-allowed"
+            className="scale-[0.98] active:opacity-80 transition-transform hover:bg-surface-container-high/50 p-2 rounded-full opacity-40 cursor-not-allowed"
           >
             <span className="material-symbols-outlined">notifications</span>
           </button>
           <button
             title="Settings — coming soon"
-            className="scale-[0.98] active:opacity-80 transition-transform hover:bg-[#353436]/50 p-2 rounded-full opacity-40 cursor-not-allowed"
+            className="scale-[0.98] active:opacity-80 transition-transform hover:bg-surface-container-high/50 p-2 rounded-full opacity-40 cursor-not-allowed"
           >
             <span className="material-symbols-outlined">settings</span>
           </button>
           <button
             title="Account — coming soon"
-            className="scale-[0.98] active:opacity-80 transition-transform hover:bg-[#353436]/50 p-2 rounded-full opacity-40 cursor-not-allowed"
+            className="scale-[0.98] active:opacity-80 transition-transform hover:bg-surface-container-high/50 p-2 rounded-full opacity-40 cursor-not-allowed"
           >
             <span className="material-symbols-outlined">account_circle</span>
           </button>

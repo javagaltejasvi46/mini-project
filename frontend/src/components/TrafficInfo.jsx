@@ -40,9 +40,8 @@ const TrafficInfo = ({ data }) => {
       {/* Card with a coloured top accent line matching traffic severity */}
       <div
         ref={cardRef}
-        className="rounded-xl border border-outline-variant/10 overflow-hidden card-hover"
+        className="rounded-xl border border-outline-variant/10 overflow-hidden card-hover bg-surface-container-high"
         style={{
-          background: '#1c1b1c',
           borderTop: `2px solid ${tc.hex}`,
           boxShadow: `0 0 24px ${tc.glow}, 0 1px 0 rgba(255,255,255,0.04) inset`,
         }}
@@ -118,14 +117,14 @@ const TrafficInfo = ({ data }) => {
               <div className="p-4 rounded-xl border border-outline-variant/10 bg-surface-container-lowest/60">
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-[9px] uppercase tracking-[0.12em] text-outline font-semibold">Confidence</p>
-                  <p className="text-sm font-black text-secondary-fixed-dim tabular-nums">{confidencePct}%</p>
+                  <p className="text-sm font-black text-primary tabular-nums">{confidencePct}%</p>
                 </div>
                 <div className="h-1.5 bg-surface-container rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{
                       width: `${confidencePct}%`,
-                      background: 'linear-gradient(90deg, #582cff, #00dce5)',
+                      background: 'linear-gradient(90deg, theme("colors.secondary-container"), theme("colors.primary"))',
                     }}
                   />
                 </div>
@@ -146,7 +145,7 @@ const TrafficInfo = ({ data }) => {
               Rate This Prediction
             </button>
           ) : (
-            <div className="w-full py-2.5 rounded-xl text-secondary-fixed-dim text-xs font-medium text-center border border-secondary-fixed-dim/25"
+            <div className="w-full py-2.5 rounded-xl text-primary text-xs font-medium text-center border border-secondary-fixed-dim/25"
               style={{ background: 'rgba(0,220,229,0.06)' }}>
               ✓ Thank you for your feedback!
             </div>

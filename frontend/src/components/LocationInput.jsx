@@ -38,8 +38,8 @@ const LocationInput = ({ onSubmit, loading }) => {
 
   return (
     <div
-      className="rounded-xl border border-outline-variant/10 overflow-hidden"
-      style={{ background: '#1c1b1c', borderTop: '2px solid rgba(200,191,255,0.25)' }}
+      className="rounded-xl border border-outline-variant/10 overflow-hidden bg-surface-container-high"
+      style={{ borderTop: '2px solid rgba(200,191,255,0.25)' }}
     >
       <form onSubmit={handleSubmit}>
         {/* Main input area — more spacious */}
@@ -51,7 +51,7 @@ const LocationInput = ({ onSubmit, loading }) => {
               dotColor="bg-secondary-fixed-dim"
               dotGlow="0 0 6px rgba(0,220,229,0.6)"
               icon="trip_origin"
-              iconColor="text-secondary-fixed-dim"
+              iconColor="text-primary"
               placeholder="From — e.g. MG Road, Bangalore"
               value={origin}
               onChange={setOrigin}
