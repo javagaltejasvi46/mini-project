@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LogInPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="bg-background text-on-surface font-body antialiased min-h-screen flex items-center justify-center relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -10,7 +12,7 @@ const LogInPage = () => {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+')] opacity-20"></div>
       </div>
       <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-[#131314]/80 backdrop-blur-xl shadow-2xl shadow-black/50 border-b border-transparent">
-        <div className="flex items-center gap-2 text-[#c8bfff] font-bold tracking-tighter text-xl font-['Inter']">
+        <div className="flex items-center gap-2 text-[#c8bfff] font-bold tracking-tighter text-xl font-['Inter'] cursor-pointer" onClick={() => navigate('/')}>
           <span className="material-symbols-outlined text-primary-container" style={{fontVariationSettings: "'FILL' 1"}}>dataset</span>
           <span>Obsidian Oracle</span>
         </div>
@@ -61,17 +63,23 @@ const LogInPage = () => {
               </div>
             </div>
             <div className="pt-4">
-              <button className="w-full relative group overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed py-3.5 px-4 font-headline text-sm font-bold tracking-wide flex justify-center items-center gap-2 hover:opacity-90 transition-opacity" type="button">
+              <button onClick={() => navigate('/app/dashboard')} className="w-full relative group overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed py-3.5 px-4 font-headline text-sm font-bold tracking-wide flex justify-center items-center gap-2 hover:opacity-90 transition-opacity" type="button">
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <span>AUTHENTICATE</span>
                 <span className="material-symbols-outlined text-lg" style={{fontVariationSettings: "'FILL' 1"}}>arrow_right_alt</span>
               </button>
             </div>
           </form>
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <button className="font-label text-[10px] uppercase tracking-[0.1em] text-primary hover:text-secondary-container transition-colors bg-transparent">
               Request Protocol Bypass
             </button>
+            <p className="text-[10px] text-outline">
+              No account?{' '}
+              <button onClick={() => navigate('/signup')} className="text-primary hover:text-secondary-container transition-colors">
+                Request Access
+              </button>
+            </p>
           </div>
         </div>
       </main>

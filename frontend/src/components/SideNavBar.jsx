@@ -3,10 +3,10 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { api } from '../api';
 
 const NAV_ITEMS = [
-  { to: '/dashboard',      icon: 'insights',    label: 'Oracle Dashboard' },
-  { to: '/flow-optimizer', icon: 'traffic',     label: 'Neural Flow Optimizer' },
-  { to: '/predictive-hub', icon: 'psychology',  label: 'Predictive Hub' },
-  { to: '/health',         icon: 'dns',         label: 'System Health' },
+  { to: '/app/dashboard',      icon: 'insights',    label: 'Oracle Dashboard' },
+  { to: '/app/flow-optimizer', icon: 'traffic',     label: 'Neural Flow Optimizer' },
+  { to: '/app/predictive-hub', icon: 'psychology',  label: 'Predictive Hub' },
+  { to: '/app/health',         icon: 'dns',         label: 'System Health' },
 ];
 
 const SideNavBar = () => {

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="antialiased min-h-screen flex flex-col md:flex-row overflow-hidden bg-surface text-on-surface">
       <div className="hidden md:flex flex-col w-1/2 h-screen relative bg-surface-container-lowest">
@@ -11,7 +13,7 @@ const SignUpPage = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-surface/40 z-10"></div>
         <div className="relative z-20 p-12 flex flex-col justify-between h-full">
           <div>
-            <span className="text-3xl font-black tracking-tighter text-primary">SANJAYA</span>
+            <span className="text-3xl font-black tracking-tighter text-primary cursor-pointer" onClick={() => navigate('/')}>SANJAYA</span>
           </div>
           <div className="max-w-md">
             <h1 className="text-[3.5rem] leading-[1.1] font-bold tracking-[-0.02em] text-on-surface mb-6">
@@ -35,7 +37,7 @@ const SignUpPage = () => {
       <div className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center p-6 sm:p-12 bg-surface">
         <div className="w-full max-w-md space-y-12">
           <div className="md:hidden flex justify-center mb-8">
-            <span className="text-2xl font-black tracking-tighter text-primary">SANJAYA</span>
+            <span onClick={() => navigate('/')} className="text-2xl font-black tracking-tighter text-primary cursor-pointer">SANJAYA</span>
           </div>
           <div className="space-y-3">
             <h2 className="text-[1.75rem] font-semibold text-on-surface tracking-tight">Request Access</h2>
@@ -102,7 +104,7 @@ const SignUpPage = () => {
               </div>
             </div>
             <div className="pt-6">
-              <button className="w-full py-4 rounded-xl bg-gradient-primary text-on-primary font-semibold text-sm tracking-wide shadow-none hover:shadow-[inset_0_0_20px_rgba(25,0,100,0.2)] transition-all duration-300 flex justify-center items-center gap-2" type="button">
+              <button onClick={() => navigate('/app/dashboard')} className="w-full py-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm tracking-wide hover:opacity-90 transition-all duration-300 flex justify-center items-center gap-2" type="button">
                 <span>Initialize Sequence</span>
                 <span className="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
               </button>
@@ -110,6 +112,10 @@ const SignUpPage = () => {
             <div className="text-center pt-4">
               <p className="text-xs text-on-surface/40">
                 By requesting access, you agree to the <a className="text-primary hover:text-primary-container transition-colors" href="#">Terms of Service</a> and <a className="text-primary hover:text-primary-container transition-colors" href="#">Privacy Policy</a>.
+              </p>
+              <p className="text-xs text-on-surface/40 mt-3">
+                Already have access?{' '}
+                <button onClick={() => navigate('/login')} className="text-primary hover:text-secondary-container transition-colors">Sign In</button>
               </p>
             </div>
           </form>

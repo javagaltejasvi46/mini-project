@@ -28,7 +28,7 @@ const TopNavBar = () => {
     clear();
     setOpen(false);
     // Navigate to flow optimizer with the selected place pre-filled as origin via URL state
-    navigate('/flow-optimizer', {
+    navigate('/app/flow-optimizer', {
       state: { origin: { name: s.display, lat: s.lat, lon: s.lon } }
     });
   };
@@ -45,9 +45,9 @@ const TopNavBar = () => {
           SANJAYA INSIGHT ENGINE
         </div>
         <div className="hidden md:flex gap-6 font-['Inter'] tracking-tight text-sm font-medium">
-          <NavLink to="/health" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Network Status</NavLink>
-          <NavLink to="/flow-optimizer" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Flow Analysis</NavLink>
-          <NavLink to="/predictive-hub" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Predictive Hub</NavLink>
+          <NavLink to="/app/health" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Network Status</NavLink>
+          <NavLink to="/app/flow-optimizer" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Flow Analysis</NavLink>
+          <NavLink to="/app/predictive-hub" className={({ isActive }) => isActive ? "text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg border-b-2 border-primary" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 transition-all duration-300 px-3 py-1.5 rounded-lg"}>Predictive Hub</NavLink>
         </div>
       </div>
 

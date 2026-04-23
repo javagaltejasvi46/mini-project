@@ -22,6 +22,30 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(71,69,87,0.7); }
 }
 
+/* ─── Homepage utility classes ──────────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #c8bfff 0%, #582cff 100%);
+  color: #190064;
+  font-weight: 600;
+  transition: opacity 0.2s ease, transform 0.12s ease;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.97); }
+
+.gradient-text {
+  background: linear-gradient(135deg, #c8bfff 0%, #00dce5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-panel {
+  background: rgba(53, 52, 54, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(71, 69, 87, 0.2);
+}
+
 /* ─── Reveal animations ─────────────────────────────────────────────────── */
 /* Base state — invisible, shifted down */
 .reveal {

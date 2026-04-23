@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
+  const navigate = useNavigate();
   return (
     <div className="bg-surface text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container">
       {/* TopNavBar */}
@@ -15,8 +17,8 @@ const HomePage = () => {
           <a className="text-white/60 hover:text-white transition-colors hover:bg-white/5 px-3 py-2 rounded-md" href="#">Pricing</a>
         </div>
         <div className="flex items-center gap-4">
-          <button className="text-primary hover:text-white transition-colors text-sm font-medium tracking-wide">Sign In</button>
-          <button className="btn-primary px-6 py-2 rounded-xl text-sm font-semibold tracking-wide active:scale-95 transition-transform">Get Access</button>
+          <button onClick={() => navigate('/login')} className="text-primary hover:text-white transition-colors text-sm font-medium tracking-wide">Sign In</button>
+          <button onClick={() => navigate('/signup')} className="btn-primary px-6 py-2 rounded-xl text-sm font-semibold tracking-wide active:scale-95 transition-transform">Get Access</button>
         </div>
       </nav>
       <main className="flex-grow pt-24">
@@ -39,7 +41,7 @@ const HomePage = () => {
               Harness predictive intelligence to untangle the complexity of modern urban mobility. See the future of traffic before it happens.
             </p>
             <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
-              <button className="btn-primary px-8 py-4 rounded-xl text-lg font-semibold w-full sm:w-auto shadow-[0_20px_40px_rgba(200,191,255,0.15)]">
+              <button onClick={() => navigate('/signup')} className="btn-primary px-8 py-4 rounded-xl text-lg font-semibold w-full sm:w-auto shadow-[0_20px_40px_rgba(200,191,255,0.15)]">
                 Request Access
               </button>
               <button className="flex items-center gap-2 text-on-surface hover:text-primary transition-colors text-lg font-medium px-8 py-4 w-full sm:w-auto">
