@@ -157,3 +157,24 @@
   opacity: 0.85;
 }
 
+.glass-panel {
+  background-color: rgba(53, 52, 54, 0.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(71, 69, 87, 0.15);
+}
+.gradient-text {
+  background: linear-gradient(135deg, #c8bfff, #582cff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #c8bfff, #582cff);
+  color: #131314;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  box-shadow: inset 0 0 10px rgba(25, 0, 100, 0.3);
+}
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #c8bfff, #582cff);
+}
