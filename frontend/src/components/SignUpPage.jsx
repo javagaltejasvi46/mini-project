@@ -1,8 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const [fullName, setFullName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [showPw, setShowPw]       = useState(false);
+  const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
+
+  const handleSubmit = async () => {
+    if (!fullName || !email || !password) { setError('Please fill in all fields.'); return; }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    setLoading(true); setError('');
+    try {
+      await register(fullName, email, password);
+      navigate('/app/dashboard');
+    } catch (e) {
+      setError(e.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="antialiased min-h-screen flex flex-col md:flex-row overflow-hidden bg-surface text-on-surface">
       <div className="hidden md:flex flex-col w-1/2 h-screen relative bg-surface-container-lowest">
@@ -51,7 +73,7 @@ const SignUpPage = () => {
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-on-surface/40 text-[20px]" data-icon="person">person</span>
                   </div>
-                  <input className="block w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant/15 rounded-lg text-on-surface text-sm placeholder:text-on-surface/30 focus:outline-none focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-all" id="fullName" placeholder="Jane Doe" type="text" />
+                  <input className="block w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant/15 rounded-lg text-on-surface text-sm placeholder:text-on-surface/30 focus:outline-none focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-all" id="fullName" placeholder="Jane Doe" type="text" value={fullName} onChange={e => setFullName(e.target.value)} />
                 </div>
               </div>
               <div className="space-y-2">
@@ -60,7 +82,7 @@ const SignUpPage = () => {
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-on-surface/40 text-[20px]" data-icon="mail">mail</span>
                   </div>
-                  <input className="block w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant/15 rounded-lg text-on-surface text-sm placeholder:text-on-surface/30 focus:outline-none focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-all" id="orgEmail" placeholder="jane@company.com" type="email" />
+                  <input className="block w-full pl-11 pr-4 py-3 bg-surface-container-lowest border border-outline-variant/15 rounded-lg text-on-surface text-sm placeholder:text-on-surface/30 focus:outline-none focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-all" id="orgEmail" placeholder="jane@company.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
               </div>
               <div className="space-y-2">
@@ -81,33 +103,25 @@ const SignUpPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 pt-2">
-                <label className="block text-[0.75rem] uppercase tracking-[0.1em] text-on-surface/70 font-semibold mb-3">API Preference</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="relative flex cursor-pointer rounded-lg border border-outline-variant/15 bg-surface-container-lowest p-4 hover:bg-surface-container-low transition-colors has-[:checked]:bg-surface-container-high has-[:checked]:border-primary/30">
-                    <input className="peer sr-only" name="api_pref" type="radio" value="rest" />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-on-surface peer-checked:text-primary">REST API</span>
-                      <span className="text-xs text-on-surface/50 mt-1">Standard endpoints</span>
-                    </div>
-                    <span className="material-symbols-outlined absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity text-[18px]" data-icon="check_circle" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
-                  </label>
-                  <label className="relative flex cursor-pointer rounded-lg border border-outline-variant/15 bg-surface-container-lowest p-4 hover:bg-surface-container-low transition-colors has-[:checked]:bg-surface-container-high has-[:checked]:border-primary/30">
-                    <input className="peer sr-only" name="api_pref" type="radio" value="graphql" />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-on-surface peer-checked:text-primary">GraphQL</span>
-                      <span className="text-xs text-on-surface/50 mt-1">Custom queries</span>
-                    </div>
-                    <span className="material-symbols-outlined absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity text-[18px]" data-icon="check_circle" style={{fontVariationSettings: "'FILL' 1"}}>check_circle</span>
-                  </label>
+              <div className="space-y-2">
+                <label className="block text-[0.75rem] uppercase tracking-[0.1em] text-on-surface/70 font-semibold" htmlFor="password">Password</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="material-symbols-outlined text-on-surface/40 text-[20px]">lock</span>
+                  </div>
+                  <input className="block w-full pl-11 pr-11 py-3 bg-surface-container-lowest border border-outline-variant/15 rounded-lg text-on-surface text-sm placeholder:text-on-surface/30 focus:outline-none focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-all" id="password" placeholder="Create a strong password" type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} />
+                  <button className="absolute inset-y-0 right-0 pr-4 flex items-center text-on-surface/40 hover:text-primary transition-colors" type="button" onClick={() => setShowPw(v => !v)}>
+                    <span className="material-symbols-outlined text-[20px]">{showPw ? 'visibility_off' : 'visibility'}</span>
+                  </button>
                 </div>
               </div>
             </div>
             <div className="pt-6">
-              <button onClick={() => navigate('/app/dashboard')} className="w-full py-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm tracking-wide hover:opacity-90 transition-all duration-300 flex justify-center items-center gap-2" type="button">
-                <span>Initialize Sequence</span>
-                <span className="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+              <button onClick={handleSubmit} disabled={loading} className="w-full py-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-semibold text-sm tracking-wide hover:opacity-90 transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-60" type="button">
+                <span>{loading ? 'Initializing...' : 'Initialize Sequence'}</span>
+                <span className="material-symbols-outlined text-[18px]">{loading ? 'hourglass_top' : 'arrow_forward'}</span>
               </button>
+              {error && <p className="mt-3 text-xs text-error text-center">{error}</p>}
             </div>
             <div className="text-center pt-4">
               <p className="text-xs text-on-surface/40">

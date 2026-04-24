@@ -1,8 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const LogInPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [showPw, setShowPw]     = useState(false);
+
+  const handleSubmit = async () => {
+    if (!email || !password) { setError('Please fill in all fields.'); return; }
+    setLoading(true); setError('');
+    try {
+      await login(email, password);
+      navigate('/app/dashboard');
+    } catch (e) {
+      setError(e.message || 'Login failed. Check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="bg-background text-on-surface font-body antialiased min-h-screen flex items-center justify-center relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -42,32 +62,33 @@ const LogInPage = () => {
           </div>
           <form className="space-y-6">
             <div className="space-y-2">
-              <label className="block font-label text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium" htmlFor="operatives_id">Operative ID</label>
+              <label className="block font-label text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium" htmlFor="email">Email</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="material-symbols-outlined text-outline text-sm">badge</span>
+                  <span className="material-symbols-outlined text-outline text-sm">mail</span>
                 </span>
-                <input className="block w-full pl-10 bg-surface-container-lowest border-transparent rounded-lg py-3 text-on-surface text-sm focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-colors placeholder:text-outline/50" id="operatives_id" placeholder="Enter alphanumeric designation" type="text" />
+                <input className="block w-full pl-10 bg-surface-container-lowest border-transparent rounded-lg py-3 text-on-surface text-sm focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-colors placeholder:text-outline/50" id="email" placeholder="you@example.com" type="email" value={email} onChange={e => setEmail(e.target.value)} />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block font-label text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium" htmlFor="access_key">Access Key</label>
+              <label className="block font-label text-[10px] uppercase tracking-[0.1em] text-on-surface-variant font-medium" htmlFor="password">Password</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="material-symbols-outlined text-outline text-sm">key</span>
+                  <span className="material-symbols-outlined text-outline text-sm">lock</span>
                 </span>
-                <input className="block w-full pl-10 bg-surface-container-lowest border-transparent rounded-lg py-3 text-on-surface text-sm focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-colors placeholder:text-outline/50" id="access_key" placeholder="••••••••••••••••" type="password" />
-                <button className="absolute inset-y-0 right-0 pr-3 flex items-center text-outline hover:text-primary transition-colors" type="button">
-                  <span className="material-symbols-outlined text-sm">visibility</span>
+                <input className="block w-full pl-10 bg-surface-container-lowest border-transparent rounded-lg py-3 text-on-surface text-sm focus:bg-surface-container-low focus:border-secondary/20 focus:ring-0 transition-colors placeholder:text-outline/50" id="password" placeholder="••••••••••••••••" type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} />
+                <button className="absolute inset-y-0 right-0 pr-3 flex items-center text-outline hover:text-primary transition-colors" type="button" onClick={() => setShowPw(v => !v)}>
+                  <span className="material-symbols-outlined text-sm">{showPw ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
             </div>
             <div className="pt-4">
-              <button onClick={() => navigate('/app/dashboard')} className="w-full relative group overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed py-3.5 px-4 font-headline text-sm font-bold tracking-wide flex justify-center items-center gap-2 hover:opacity-90 transition-opacity" type="button">
+              <button onClick={handleSubmit} disabled={loading} className="w-full relative group overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed py-3.5 px-4 font-headline text-sm font-bold tracking-wide flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-60" type="button">
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <span>AUTHENTICATE</span>
-                <span className="material-symbols-outlined text-lg" style={{fontVariationSettings: "'FILL' 1"}}>arrow_right_alt</span>
+                <span>{loading ? 'AUTHENTICATING...' : 'AUTHENTICATE'}</span>
+                <span className="material-symbols-outlined text-lg" style={{fontVariationSettings: "'FILL' 1"}}>{loading ? 'hourglass_top' : 'arrow_right_alt'}</span>
               </button>
+              {error && <p className="mt-3 text-xs text-error text-center">{error}</p>}
             </div>
           </form>
           <div className="mt-8 flex flex-col items-center gap-3">

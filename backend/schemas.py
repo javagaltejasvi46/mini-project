@@ -1,6 +1,34 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+
+# ── Auth ────────────────────────────────────────────────────────────────────
+
+class RegisterRequest(BaseModel):
+    full_name: str = Field(..., min_length=2)
+    email: EmailStr
+    password: str = Field(..., min_length=6)
+    role: Optional[str] = "user"
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class UserResponse(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    role: str
+    is_active: bool
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+# ── Traffic / ML ─────────────────────────────────────────────────────────────
 
 class PredictionRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)

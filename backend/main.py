@@ -13,6 +13,7 @@ from api.predict import router as predict_router
 from api.route import router as route_router
 from api.feedback import router as feedback_router
 from api.routes import router as routes_router
+from api.auth import router as auth_router
 
 logging.basicConfig(level=settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(traffic_router)
 app.include_router(predict_router)
 app.include_router(route_router)
